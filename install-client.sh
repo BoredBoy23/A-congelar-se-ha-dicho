@@ -101,6 +101,6 @@ fi
 ### ===============================
 ### FINAL
 ### ===============================
-msg "/n/n/nInstalación completada correctamente."
+msg "Instalación completada correctamente."
 
 clear

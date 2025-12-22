@@ -101,6 +101,6 @@ fi
 ### ===============================
 ### FINAL
 ### ===============================
-msg "Instalación completada correctamente.\n\nAhora sí, a congelar rico."
+msg "/n/n/nInstalación completada correctamente."
 
 clear

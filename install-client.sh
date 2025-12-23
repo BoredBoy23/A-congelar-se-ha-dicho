@@ -32,7 +32,7 @@ install_slipstream() {
     clear
     pkg update -y && pkg upgrade -y && \
     pkg install wget -y && \
-    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/main/install-client.sh && \
+    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/main/setup.sh && \
     chmod +x install-client.sh && \
     ./install-client.sh
     read -p "ENTER para volver"

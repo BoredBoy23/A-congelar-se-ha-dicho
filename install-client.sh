@@ -30,10 +30,11 @@ detect_network() {
 
 install_slipstream() {
     clear
-    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/refs/heads/main/setup.sh && \
-    chmod +x setup.sh && \
+    pkg update -y && pkg upgrade -y && pkg install wget -y
+    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/main/setup.sh
+    chmod +x setup.sh
     ./setup.sh
-    read -p "ENTER para volver"
+    read -p "ENTER para volver al menú"
 }
 
 clean_slipstream() {
@@ -41,13 +42,33 @@ clean_slipstream() {
     sleep 1
 }
 
+# Manejo limpio de Ctrl + C
+trap_ctrl_c() {
+    echo
+    echo "[!] Conexión interrumpida"
+    clean_slipstream
+    ACTIVE_DNS="No conectado"
+    read -p "ENTER para volver al menú"
+    return
+}
+
 wait_for_menu() {
     while true; do
-        read -r input
-        if [[ "$input" == "menu" ]]; then
+        echo
+        echo -n "> "
+        read -r input </dev/tty
+
+        # Ignorar vacío
+        [[ -z "$input" ]] && continue
+
+        cmd=$(echo "$input" | tr '[:upper:]' '[:lower:]')
+
+        if [[ "$cmd" == "menu" ]]; then
             clean_slipstream
             ACTIVE_DNS="No conectado"
             return
+        else
+            echo "[X] Comando no reconocido. Use: menu"
         fi
     done
 }
@@ -63,6 +84,8 @@ connect_auto() {
         echo "[*] Probando servidor: $SERVER"
         echo
 
+        trap trap_ctrl_c INT
+
         ./slipstream-client \
             --tcp-listen-port=5201 \
             --resolver="$SERVER" \
@@ -73,26 +96,22 @@ connect_auto() {
 
         PID=$!
 
-        for i in {1..15}; do
+        # Espera máxima: 7 segundos
+        for i in {1..7}; do
             if grep -q "Connection confirmed" "$LOG_FILE"; then
- 			   ACTIVE_DNS="$SERVER"
- 			   clear
-			    echo "[✓] CONEXIÓN CONFIRMADA"
-			    echo "[✓] DNS Activo: $ACTIVE_DNS"
-			    echo
-			    echo "Ctrl + C para desconectar"
-			    echo 'Escriba "menu" para desconectar y volver al menú'
-			    echo
-				
-			    wait_for_menu &
-			    MENU_PID=$!
-				
- 			   wait $PID
- 			   
- 			   kill $MENU_PID 2>/dev/null
-  			  ACTIVE_DNS="No conectado"
- 			   return
-			fi
+                ACTIVE_DNS="$SERVER"
+                clear
+                echo "[✓] CONEXIÓN CONFIRMADA"
+                echo "[✓] DNS Activo: $ACTIVE_DNS"
+                echo
+                echo "Ctrl + C para desconectar"
+                echo 'Escriba "menu" para volver al menú'
+                echo
+
+                wait_for_menu
+                trap - INT
+                return
+            fi
 
             if grep -q "Connection closed" "$LOG_FILE"; then
                 break
@@ -100,11 +119,12 @@ connect_auto() {
             sleep 1
         done
 
+        trap - INT
         clean_slipstream
     done
 
     echo "[X] No se pudo conectar con ningún servidor"
-    read -p "ENTER para volver"
+    read -p "ENTER para volver al menú"
 }
 
 while true; do

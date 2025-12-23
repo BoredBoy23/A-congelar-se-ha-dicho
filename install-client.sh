@@ -30,7 +30,7 @@ detect_network() {
 
 install_slipstream() {
     clear
-    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/main/setup.sh && \
+    wget https://raw.githubusercontent.com/BoredBoy23/A-congelar-se-ha-dicho/refs/heads/main/setup.sh && \
     chmod +x setup.sh && \
     ./setup.sh
     read -p "ENTER para volver"

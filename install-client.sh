@@ -85,7 +85,7 @@ connect_auto() {
     done
 
     echo "[X] No se pudo conectar con ningún servidor"
-    read
+    read -p "ENTER para volver"
 }
 
 while true; do
